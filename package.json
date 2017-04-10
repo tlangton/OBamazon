@@ -1,0 +1,24 @@
+{
+  "name": "obamazon",
+  "version": "1.0.0",
+  "description": "shopping cart",
+  "main": "bamazonCustomer.js",
+  "dependencies": {
+    "inquirer": "^3.0.6",
+    "mysql": "^2.13.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlangton/OBamazon.git"
+  },
+  "author": "me",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tlangton/OBamazon/issues"
+  },
+  "homepage": "https://github.com/tlangton/OBamazon#readme"
+}
