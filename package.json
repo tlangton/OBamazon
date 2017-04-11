@@ -4,6 +4,7 @@
   "description": "shopping cart",
   "main": "bamazonCustomer.js",
   "dependencies": {
+    "async": "^2.3.0",
     "inquirer": "^3.0.6",
     "mysql": "^2.13.0"
   },

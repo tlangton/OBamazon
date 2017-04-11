@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var async = require("async");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -18,46 +19,52 @@ var tempId = "";
 var priceId = "";
 var validIds = [];
 //inital display
-var runAllProducts = function() {
+
+function renderProducts(products) {
+    for (var i = 0; i < products.length; i++) {
+        console.log(  products[i].item_id + " | " + products[i].product_name + " | " + products[i].price );
+        validIds.push (products[i].item_id);
+    }
+    console.log(`-------------------------------------------------`);
+}
+
+
+
+var runAllProducts = function(callback) {
     console.log(
         `  All IDs, Products and Prices
-		-------------------------------------------------`
-    );
+-------------------------------------------------`
+        );
 
-    connection.query("SELECT * from products", function(error, res, fields) {
+    connection.query("SELECT * from products", function (error, products) {
         if (error) throw error;
-        for (var i = 0; i < res.length; i++) {
-            console.log(  res[i].item_id + " | " + res[i].product_name + " | " + res[i].price );
-			validIds.push (res[i].item_id);
-        }
-        console.log(`-------------------------------------------------`);
-        var json = JSON.stringify(validIds);
-        // console.log(  json );
+        renderProducts(products)
+        callback()
     });
 };
 
 //inquiries
- productAddToCart = function() {
+var productAddToCart = function() {
     inquirer
-        .prompt([
-            {
-                name: "itemId",
-                type: "input",
-                message: "Enter Product ID: "
-            },
-            {
-                name: "quantity",
-                type: "input",
-                message: "Enter quantity: "
-            }
-        ])
-        .then(function(answer) {
+    .prompt([
+    {
+        name: "itemId",
+        type: "input",
+        message: "Enter Product ID: "
+    },
+    {
+        name: "quantity",
+        type: "input",
+        message: "Enter quantity: "
+    }
+    ])
+    .then(function processAnswerCallback(answer) {
             // console.log(answer.itemId , answer.quantity)
             requestQty = answer.quantity;
             tempId = answer.itemId;
             var query = "SELECT item_id,stock_quantity, product_name, price FROM products WHERE item_id = ?";
 
-            connection.query(query, [answer.itemId], function(err, res) {
+            connection.query(query, [answer.itemId], function lookUpInventoryCallback(err, res) {
                 if (err) throw err;
 
                 inventoryQty = res[0].stock_quantity;
@@ -74,21 +81,22 @@ var runAllProducts = function() {
 
                     //update the table
                     var query = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
-                    connection.query(query, [adjustedInventory, tempId], function(err, res) {
-                            if (err) throw err;
-                            console.log(
-                                "Inventory has been set to " + adjustedInventory + " for Product ID " + tempId + ", " + tempProduct.trim() +" for $"+extPrice+"."
+                    connection.query(query, [adjustedInventory, tempId], function adjustedInvenoryCallback(err, res) {
+                        if (err) throw err;
+                        console.log(
+                            "Inventory has been set to " + adjustedInventory + " for Product ID " + tempId + ", " + tempProduct.trim() +" for $"+extPrice+"."
                             );
-                        }
+                    }
                     );
                 }
             });
+
         });
+
 };
 
 
-runAllProducts();
+runAllProducts(productAddToCart);
 
-productAddToCart();
 
-       // connection.end();
+// connection.end();
