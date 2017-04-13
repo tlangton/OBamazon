@@ -1,3 +1,6 @@
+//CUSTOMER FILE
+
+//dependencies
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var async = require("async");
@@ -13,21 +16,43 @@ var connection = mysql.createConnection({
 connection.connect();
 
 //vars
-var inventoryQty = "";
-var requestQty = "";
-var tempId = "";
-var priceId = "";
+var inventoryQty;
+var requestQty;
+var tempId ;
+var priceId;
 var validIds = [];
-//inital display
+var adjustedInventory;
+var extPrice;
+
 
 function renderProducts(products) {
     for (var i = 0; i < products.length; i++) {
-        console.log(  products[i].item_id + " | " + products[i].product_name + " | " + products[i].price );
+        console.log(  products[i].item_id + " | " + products[i].product_name + " | $" + products[i].price );
         validIds.push (products[i].item_id);
     }
     console.log(`-------------------------------------------------`);
 }
 
+
+function updateTable() {
+var query = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
+connection.query(
+    query,
+    [adjustedInventory, tempId],
+    function adjustedInvenoryCallback(err, res) {
+        if (err) throw err;
+        console.log(
+            "Inventory has been set to " +adjustedInventory +" for Product ID " +tempId +", " +tempProduct.trim() +" for $" +extPrice +"."
+        );
+        theEnd();
+    }
+);
+}
+
+
+var theEnd = function (){
+    connection.end();
+}
 
 
 var runAllProducts = function(callback) {
@@ -35,7 +60,6 @@ var runAllProducts = function(callback) {
         `  All IDs, Products and Prices
 -------------------------------------------------`
         );
-
     connection.query("SELECT * from products", function (error, products) {
         if (error) throw error;
         renderProducts(products)
@@ -62,9 +86,9 @@ var productAddToCart = function() {
             // console.log(answer.itemId , answer.quantity)
             requestQty = answer.quantity;
             tempId = answer.itemId;
-            var query = "SELECT item_id,stock_quantity, product_name, price FROM products WHERE item_id = ?";
+            var query = "SELECT item_id,stock_quantity, product_name, price FROM products WHERE item_id = ? LIMIT 1";
 
-            connection.query(query, [answer.itemId], function lookUpInventoryCallback(err, res) {
+            connection.query(query, [answer.itemId], function(err, res) {
                 if (err) throw err;
 
                 inventoryQty = res[0].stock_quantity;
@@ -76,18 +100,10 @@ var productAddToCart = function() {
                     console.log("Insufficient inventory.");
                 } else {
                     console.log("Enough in stock to fill order.");
-                    var adjustedInventory = inventoryQty - requestQty;
-                    var extPrice = priceId * requestQty;
+                     adjustedInventory = inventoryQty - requestQty;
+                     extPrice = priceId * requestQty;
+                updateTable();
 
-                    //update the table
-                    var query = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
-                    connection.query(query, [adjustedInventory, tempId], function adjustedInvenoryCallback(err, res) {
-                        if (err) throw err;
-                        console.log(
-                            "Inventory has been set to " + adjustedInventory + " for Product ID " + tempId + ", " + tempProduct.trim() +" for $"+extPrice+"."
-                            );
-                    }
-                    );
                 }
             });
 
@@ -97,6 +113,3 @@ var productAddToCart = function() {
 
 
 runAllProducts(productAddToCart);
-
-
-// connection.end();
