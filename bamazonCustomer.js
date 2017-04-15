@@ -37,30 +37,28 @@ function updateTable() {
     query, [adjustedInventory, prodSales, tempId], function adjustedInvenoryCallback(err, res) {
         if (err) throw err;
         console.log("Inventory has been set to " + adjustedInventory + " for Product ID " + tempId + ", " + tempProduct.trim() + " for $" + extPrice + ".");
-    //gets department sales to add to new sale
-    selectDept();
-    updateDeptSales();
-
-    theEnd();
+        theEnd();
     });
 }
 
 function selectDept() {
     var query = "SELECT * FROM departments WHERE department_name = ? LIMIT 1";
-      connection.query(
+    connection.query(
     query, [deptName], function adjustedInvenoryCallback(err, res) {
         if (err) throw err;
         totalSales = res[0].total_sales;
-        updateSales =  parseInt(totalSales) + extPrice;
+        updateSales = parseInt(totalSales) + extPrice;
         // console.log('dept sales '+ totalSales );
-})}
+    })
+}
 
 function updateDeptSales() {
     var query = "UPDATE departments SET total_sales = ? WHERE department_name = ?";
-      connection.query(
+    connection.query(
     query, [totalSales, deptName], function (err, res) {
         if (err) throw err;
-})}
+    })
+}
 
 
 
