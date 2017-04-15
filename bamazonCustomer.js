@@ -3,14 +3,10 @@
 //dependencies
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var async = require("async");
+var myModules = require("./modules.js");
 
-var connection = mysql.createConnection({
-    host: "localhost",
-    user: "bootcamp",
-    password: "",
-    database: "bamazon"
-});
+//exported common stuff from myModules
+var connection = myModules.connection;
 
 //connect to the db
 connection.connect();
