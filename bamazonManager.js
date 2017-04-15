@@ -93,7 +93,6 @@ var showAllProducts = function (callback) {
         callback()
     });
 }
-// showAllProducts(function() {connection.end();});
 
 //View low inventory
 var showLowInventory = function (callback) {
@@ -105,9 +104,8 @@ var showLowInventory = function (callback) {
         callback()
     });
 }
-// showLowInventory(function() {connection.end();});
 
-//* Add to Inventory
+// Add to Inventory
 //inquirer gets id and add qty
 var addInventoryItems = function () {
     inquirer.prompt([{
@@ -150,8 +148,6 @@ var updateInventory = function (callback) {
         runManager();
     });
 }
-
-
 
 //New Product
 var newProduct = function (callback) {
